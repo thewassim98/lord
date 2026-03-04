@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyProcess FTTH | Orange - Assistant Intelligent Qualité</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --orange: #ff6600;
+            --orange-light: #fff3e6;
+            --orange-dark: #e55a00;
+            --blue-info: #e3f2fd;
+            --blue-border: #2196F3;
+            --green-success: #e8f5e9;
+            --green-border: #4caf50;
+            --yellow-warning: #fff3e0;
+            --yellow-border: #ff9800;
+            --gray-bg: #f5f7fa;
+            --gray-border: #ddd;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: var(--gray-bg);
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--orange) 0%, #ff8533 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            opacity: 0.95;
+            font-size: 1.1rem;
+        }
+
+        .search-container {
+            background: white;
+            padding: 1.5rem;
+            margin: 1rem 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            font-size: 1.1rem;
+            border: 2px solid var(--gray-border);
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-box:focus {
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.1);
+        }
+
+        .container {
+            display: flex;
+            margin: 1rem 2rem;
+            gap: 1.5rem;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            padding: 1.2rem;
+            height: fit-content;
+            position: sticky;
+            top: 180px;
+        }
+
+        .sidebar h3 {
+            color: var(--orange);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--orange);
+            font-size: 1.2rem;
+        }
+
+        .nav-item {
+            padding: 0.8rem 1rem;
+            margin: 0.3rem 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: var(--orange-light);
+            color: var(--orange);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: var(--orange);
+            color: white;
+        }
+
+        .content {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            padding: 2rem;
+            min-height: 800px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section h2 {
+            color: var(--orange);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 4px solid var(--orange);
+            font-size: 1.8rem;
+        }
+
+        /* Grille qualité - Style ARBEO/Sigma */
+        .quality-grid {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 2px solid #e2e8f0;
+        }
+
+        .quality-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .quality-header h3 {
+            color: #0f172a;
+            margin: 0;
+            border: none;
+            font-size: 1.4rem;
+        }
+
+        .quality-badge {
+            background: var(--orange);
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .quality-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .quality-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+
+        .quality-item.checked {
+            border-color: var(--green-border);
+            background: var(--green-success);
+        }
+
+        .quality-item-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .quality-check {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #94a3b8;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.2s;
+        }
+
+        .quality-check.checked {
+            background: var(--green-border);
+            border-color: var(--green-border);
+        }
+
+        .quality-check.checked::after {
+            content: "✓";
+            color: white;
+            font-size: 1rem;
+        }
+
+        .quality-title {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .quality-desc {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-left: 2rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--orange), #ffb347);
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .progress-text {
+            text-align: right;
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        /* Assistant diagnostic */
+        .diag-container {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 2rem;
+            border: 2px solid #e2e8f0;
+        }
+
+        .diag-step {
+            margin-bottom: 2rem;
+        }
+
+        .diag-question {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            padding-left: 1rem;
+            border-left: 5px solid var(--orange);
+        }
+
+        .diag-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .diag-option {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            padding: 0.8rem 1.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .diag-option:hover {
+            border-color: var(--orange);
+            background: var(--orange-light);
+            color: var(--orange);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 102, 0, 0.15);
+        }
+
+        .diag-result {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 2px solid var(--green-border);
+        }
+
+        .discours-box {
+            background: var(--blue-info);
+            border-left: 5px solid var(--blue-border);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            font-style: italic;
+        }
+
+        .discours-box strong {
+            color: var(--blue-border);
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .action-box {
+            background: var(--yellow-warning);
+            border-left: 5px solid var(--yellow-border);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+
+        .btn-reset {
+            background: var(--orange);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .btn-reset:hover {
+            background: var(--orange-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.3);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .badge.orange {
+            background: var(--orange);
+            color: white;
+        }
+
+        .badge.blue {
+            background: var(--blue-border);
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: var(--orange);
+            color: white;
+            font-weight: 600;
+            padding: 1rem;
+        }
+
+        td {
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        tr:hover {
+            background: var(--orange-light);
+        }
+
+        .info-box {
+            background: var(--blue-info);
+            border-left: 5px solid var(--blue-border);
+            padding: 1.2rem;
+            border-radius: 8px;
+        }
+
+        .warning-box {
+            background: var(--yellow-warning);
+            border-left: 5px solid var(--yellow-border);
+            padding: 1.2rem;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                margin: 1rem;
+            }
+            .sidebar {
+                width: 100%;
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 MyProcess FTTH | Orange</h1>
+        <p>Assistant Qualité Intelligent • Guide Agent • Discours Préparés • Grille de Contrôle ARBEO</p>
+    </div>
+
+    <div class="search-container">
+        <input type="text" class="search-box" id="searchBox" 
+               placeholder="🔍 Rechercher un process, une checklist, un symptôme (ex: LOS rouge, lenteurs, installation...)">
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <h3>📋 Navigation</h3>
+            <div class="nav-item active" onclick="showSection('accueil')">🏠 Accueil</div>
+            <div class="nav-item" onclick="showSection('delais')">⏱️ Délais & Escalades</div>
+            <div class="nav-item" onclick="showSection('diagnostic')">🚀 Lancer un diagnostic qualité</div>
+            <div class="nav-item" onclick="showSection('partage')">📡 Partage FTTH</div>
+            <div class="nav-item" onclick="showSection('orange')">🟠 Orange FTTH</div>
+            <div class="nav-item" onclick="showSection('checklists')">✅ Toutes les checklists</div>
+            <div class="nav-item" onclick="showSection('qualite')">📊 Grille qualité ARBEO</div>
+        </div>
+
+        <div class="content">
+            <!-- Section Accueil -->
+            <div class="section active" id="accueil">
+                <h2>🏠 Bienvenue sur l'assistant qualité FTTH</h2>
+                
+                <div class="quality-grid">
+                    <div class="quality-header">
+                        <h3>🎯 Objectif qualité du jour</h3>
+                        <span class="quality-badge">100% conformité</span>
+                    </div>
+                    <div class="quick-ref" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                        <div class="quality-item">
+                            <div class="quality-item-header">
+                                <span class="quality-title">📞 Taux de décroché</span>
+                            </div>
+                            <div class="quality-desc">Objectif: 85% • Actuel: 92%</div>
+                        </div>
+                        <div class="quality-item">
+                            <div class="quality-item-header">
+                                <span class="quality-title">✅ Satisfaction client</span>
+                            </div>
+                            <div class="quality-desc">Objectif: 4.5/5 • Actuel: 4.7/5</div>
+                        </div>
+                        <div class="quality-item">
+                            <div class="quality-item-header">
+                                <span class="quality-title">⚡ Résolution en 1 appel</span>
+                            </div>
+                            <div class="quality-desc">Objectif: 75% • Actuel: 78%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>💡 Comment utiliser l'assistant :</strong><br>
+                    1. Lancez un diagnostic depuis le menu<br>
+                    2. Suivez les questions posées<br>
+                    3. Utilisez les discours préparés en français<br>
+                    4. Cochez les items qualité au fur et à mesure<br>
+                    5. Validez la grille avant de clôturer l'appel
+                </div>
+            </div>
+
+            <!-- Section Délais -->
+            <div class="section" id="delais">
+                <h2>⏱️ Délais et files d'escalade</h2>
+                <table>
+                    <thead><tr><th>Type</th><th>Délai</th><th>File</th></tr></thead>
+                    <tbody>
+                        <tr><td>Installation Partage</td><td>7-10 jours</td><td>BO ST FTTH B2C</td></tr>
+                        <tr><td>Intervention OI</td><td>48h</td><td>Partage FTTH N3</td></tr>
+                        <tr><td>Intervention DTF</td><td>24h</td><td>DTF_FTTH_OUT</td></tr>
+                        <tr><td>Incident collectif</td><td>Variable</td><td>NOC FIXE B2C</td></tr>
+                        <tr><td>Dédommagement</td><td>48h recontact</td><td>BO CRC</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Section Diagnostic Intelligent -->
+            <div class="section" id="diagnostic">
+                <h2>🚀 Assistant diagnostic qualité</h2>
+                <div class="diag-container">
+                    <!-- Grille qualité dynamique -->
+                    <div class="quality-grid" id="qualityGrid">
+                        <div class="quality-header">
+                            <h3>📋 Grille qualité - Appel en cours</h3>
+                            <span class="quality-badge" id="qualityScore">0/10</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        </div>
+                        <div class="quality-items" id="qualityItems">
+                            <!-- Rempli par JS -->
+                        </div>
+                    </div>
+
+                    <!-- Assistant pas à pas -->
+                    <div id="diagnostic-container">
+                        <!-- Rempli par JS -->
+                    </div>
+                    
+                    <button class="btn-reset" onclick="resetDiagnostic()">🔄 Recommencer le diagnostic</button>
+                </div>
+            </div>
+
+            <!-- Autres sections (simplifiées pour l'exemple) -->
+            <div class="section" id="partage"><h2>📡 Partage FTTH</h2><p>Consultez le guide complet dans l'onglet diagnostic.</p></div>
+            <div class="section" id="orange"><h2>🟠 Orange FTTH</h2><p>Consultez le guide complet dans l'onglet diagnostic.</p></div>
+            <div class="section" id="checklists"><h2>✅ Checklists</h2><p>Toutes les checklists sont intégrées dans le diagnostic.</p></div>
+            <div class="section" id="qualite"><h2>📊 Grille qualité ARBEO</h2>
+                <div class="quality-grid">
+                    <h3>Critères qualité ARBEO / Sigma</h3>
+                    <ul style="list-style: none;">
+                        <li>✓ Identification client (nom, SIP, adresse)</li>
+                        <li>✓ Qualification précise du motif</li>
+                        <li>✓ Vérification des voyants</li>
+                        <li>✓ Manipulations à chaud</li>
+                        <li>✓ Information des délais</li>
+                        <li>✓ Codification correcte</li>
+                        <li>✓ Proposition alternative (injection data)</li>
+                        <li>✓ Discours de satisfaction</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== BASE DE CONNAISSANCES ====================
+        const qualityChecklist = [
+            { id: 'q1', title: 'Identification client', desc: 'Nom, prénom, SIP, adresse vérifiés' },
+            { id: 'q2', title: 'Qualification du motif', desc: 'Nature exacte du problème identifiée' },
+            { id: 'q3', title: 'Vérification voyants', desc: 'État des voyants demandé et noté' },
+            { id: 'q4', title: 'Manipulations à chaud', desc: 'Reset, branchements, tests effectués' },
+            { id: 'q5', title: 'Information délais', desc: 'Délai d’intervention communiqué' },
+            { id: 'q6', title: 'Proposition alternative', desc: 'Injection data si mobile Orange' },
+            { id: 'q7', title: 'Discours courtois', desc: 'Ton professionnel et empathique' },
+            { id: 'q8', title: 'Codification', desc: 'Case créée avec les bonnes files' }
+        ];
+
+        // Arbre de diagnostic
+        const diagTree = {
+            start: {
+                question: "Quel est le motif principal de l'appel ?",
+                options: [
+                    { text: "📴 Perte d'accès totale", next: "infra" },
+                    { text: "🐢 Lenteurs / Débit", next: "infra" },
+                    { text: "⚡ Microcoupures", next: "infra" },
+                    { text: "📦 Installation / Activation", next: "install" }
+                ]
+            },
+            infra: {
+                question: "Sur quelle infrastructure ?",
+                options: [
+                    { text: "🟠 Orange (100% Orange)", next: "orangePerte" },
+                    { text: "📡 Partage (IAM/INWI)", next: "partagePerte" }
+                ]
+            },
+            orangePerte: {
+                question: "Que voyez-vous sur les voyants du routeur ?",
+                options: [
+                    { text: "⚫ Power éteint", next: "orangePower" },
+                    { text: "🔴 LOS rouge", next: "orangeLos" },
+                    { text: "🟡 PON éteint/clignotant", next: "orangePon" },
+                    { text: "🔵 Internet éteint", next: "orangeInternet" }
